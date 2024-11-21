@@ -1,3 +1,6 @@
+<script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
+
 <script>
   // Initialize the map
   const map = new maplibregl.Map({
