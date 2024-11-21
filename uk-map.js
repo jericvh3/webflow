@@ -7,7 +7,7 @@
     style: 'https://tiles.openfreemap.org/styles/liberty',
     center: [-0.11792762131469203, 51.26599981116826], // Default center (London)
     zoom: 7.5, // Suitable zoom for UK-wide map
-    container: 'map',
+    container: 'map', // ID of the container where the map will be rendered
   });
 
   const defaultZoom = 7.5;
@@ -169,46 +169,44 @@
     const postcodeData = [];
     const filtersSet = new Set();
 
-    Webflow.push(() => {
-      const postcodeItems = document.querySelectorAll('.w-dyn-item');
-      const postcodeMap = new Map(); // Map to store unique postcodes and their data
+    const postcodeItems = document.querySelectorAll('.w-dyn-item');
+    const postcodeMap = new Map(); // Map to store unique postcodes and their data
 
-      postcodeItems.forEach(item => {
-        const postcodeElement = item.querySelector('.postcode-class');
-        const townElement = item.querySelector('.town-class');
-        const coverageElement = item.querySelector('.coverage-class');
-        const filterElements = item.querySelectorAll('.filter-class');
+    postcodeItems.forEach(item => {
+      const postcodeElement = item.querySelector('.postcode-class');
+      const townElement = item.querySelector('.town-class');
+      const coverageElement = item.querySelector('.coverage-class');
+      const filterElements = item.querySelectorAll('.filter-class');
 
-        const postcode = postcodeElement ? postcodeElement.textContent.trim() : null;
-        const town = townElement ? townElement.textContent.trim() : null;
-        const coverage = coverageElement ? coverageElement.textContent.trim() : null;
+      const postcode = postcodeElement ? postcodeElement.textContent.trim() : null;
+      const town = townElement ? townElement.textContent.trim() : null;
+      const coverage = coverageElement ? coverageElement.textContent.trim() : null;
 
-        const filters = Array.from(filterElements).map(f => f.textContent.trim());
+      const filters = Array.from(filterElements).map(f => f.textContent.trim());
 
-        if (postcode) {
-          if (!postcodeMap.has(postcode)) {
-            // Initialize entry for this postcode
-            postcodeMap.set(postcode, { postcode, town, coverage, filters: new Set(filters) });
-          } else {
-            // Merge filters for duplicate postcodes
-            const existingData = postcodeMap.get(postcode);
-            filters.forEach(filter => existingData.filters.add(filter));
-          }
+      if (postcode) {
+        if (!postcodeMap.has(postcode)) {
+          // Initialize entry for this postcode
+          postcodeMap.set(postcode, { postcode, town, coverage, filters: new Set(filters) });
+        } else {
+          // Merge filters for duplicate postcodes
+          const existingData = postcodeMap.get(postcode);
+          filters.forEach(filter => existingData.filters.add(filter));
         }
-      });
-
-      // Convert map back to an array and normalize filters to arrays
-      postcodeMap.forEach(({ postcode, town, coverage, filters }) => {
-        postcodeData.push({ postcode, town, coverage, filters: Array.from(filters) });
-      });
-
-      // Add layers and setup filter buttons
-      postcodeData.forEach(async ({ postcode, town, coverage, filters }) => {
-        await addPostalCodeBoundaries(postcode, town, coverage, filters);
-      });
-
-      setupFilterButtons();
+      }
     });
+
+    // Convert map back to an array and normalize filters to arrays
+    postcodeMap.forEach(({ postcode, town, coverage, filters }) => {
+      postcodeData.push({ postcode, town, coverage, filters: Array.from(filters) });
+    });
+
+    // Add layers and setup filter buttons
+    postcodeData.forEach(async ({ postcode, town, coverage, filters }) => {
+      await addPostalCodeBoundaries(postcode, town, coverage, filters);
+    });
+
+    setupFilterButtons();
   }
 
   initMap();
